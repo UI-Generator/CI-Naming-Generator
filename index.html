@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SAP CI Naming Generator</title>
+
+<style>
+/* -------------------- GLOBAL THEME -------------------- */
+:root {
+  --bg1: #e0e7ff;
+  --bg2: #f1f5ff;
+  --card: rgba(255,255,255,0.85);
+  --border: rgba(255,255,255,0.4);
+  --label: #475569;
+  --text: #1e293b;
+  --muted: #64748b;
+  --primary: #4f46e5;
+  --primary-dark: #4338ca;
+  --radius: 16px;
+  --shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  background: linear-gradient(135deg, var(--bg1), var(--bg2));
+}
+
+/* ------------------ HEADER ------------------ */
+.header {
+  padding: 40px 20px;
+  text-align: center;
+  color: white;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  box-shadow: 0 3px 15px rgba(0,0,0,0.25);
+}
+.header h1 { margin: 0; font-size: 28px; }
+.header p { opacity: 0.9; }
+
+/* ------------------ CARD ------------------ */
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+.card {
+  background: var(--card);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 28px;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+
+/* ------------------ FORM ------------------ */
+label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: block;
+  color: var(--label);
+}
+
+input, select {
+  width: 100%;
+  padding: 13px;
+  border-radius: 12px;
+  font-size: 15px;
+  border: 1px solid #d4d8e6;
+  background: #f8faff;
+  transition: 0.2s;
+}
+input:focus, select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(99,102,241,0.25);
+  outline: none;
+}
+
+/* 2-column layout */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 31px;
+}
+
+/* 3-column layout for Channel fields */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* Transform helpers */
+#sender, #receiver { text-transform: uppercase; }
+
+/* ------------------ BUTTONS ------------------ */
+.btn {
+  padding: 12px 22px;
+  font-size: 15px;
+  border-radius: 12px;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid #cbd5e1;
+}
+.btn-outline:hover { background: #f1f5f9; }
+
+/* ------------------ OUTPUT BOX ------------------ */
+.output-box {
+  background: #e8edff;
+  color: #1e293b;
+  padding: 20px;
+  border-radius: 16px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 56px;
+}
+.hint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>SAP CI Naming Generator</h1>
+  <p>Generate naming conventions for Packages, iFlows, Channels & Mappings etc</p>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+
+  <!-- FORM CARD -->
+  <div class="card">
+
+    <div class="grid-2">
+      <div>
+        <label>Artifact Type</label>
+        <select id="type">
+          <option value="">Select your Artifact</option>
+          <option>Package</option>
+          <option>Integration Flow</option>
+          <option>Value Mapping</option>
+          <option>OData Service</option>
+          <option>Mapping</option>
+          <option>Content Modifier</option>
+          <option>Converter</option>
+          <option>Decoder</option>
+          <option>Encoder</option>
+          <option>Filter</option>
+          <option>Message Digest</option>
+          <option>Process</option>
+          <option>Local Process</option>
+          <option>Channel</option>
+        </select>
+        <div id="hint" class="hint"></div>
+      </div>
+
+      <div>
+        <label>Output Style</label>
+        <select id="style">
+          <option>LOWER_CASE</option>
+          <option>UPPER_CASE</option>
+        </select>
+      </div>
+    </div>
+
+    <label style="margin-top:16px;">Business Unit</label>
+    <select id="bu">
+      <option value="">Select Business Unit</option>
+      <option>VolvoTrucks</option>
+      <option>MackTrucks</option>
+      <option>RenaultTrucks</option>
+      <option>VCE</option>
+      <option>VolvoBuses</option>
+	  <option>VolvoPenta</option>
+	  <option>VolvoFinancialServices</option>
+	  <option>DTO</option>
+	  <option>GroupFinance</option>
+	  <option>GroupP&C</option>
+    </select>
+
+    <label style="margin-top:16px;">Business Process</label>
+    <input id="process" placeholder="Purchasing, HR, MM" />
+
+    <div class="grid-2" style="margin-top:16px;">
+      <div>
+        <label>Sender</label>
+        <input id="sender" placeholder="ECC, S4, SFSF" />
+      </div>
+      <div>
+        <label>Receiver</label>
+        <input id="receiver" placeholder="ECC, S4, ARIBA" />
+      </div>
+    </div>
+
+    <label style="margin-top:16px;">Interface / Details</label>
+    <input id="desc" placeholder="Invoicing, AccountInfo" />
+
+    <!-- CHANNEL FIELDS -->
+    <div id="channelFields" class="grid-3" style="margin-top:16px; display:none;">
+      <div>
+        <label>Adapter Type</label>
+        <select id="adapter">
+          <option>SOAP</option>
+          <option>SFTP</option>
+          <option>IDoc</option>
+          <option>RFC</option>
+          <option>HTTP</option>
+          <option>Mail</option>
+          <option>OData</option>
+          <option>AS2</option>
+          <option>JMS</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Direction</label>
+        <select id="direction">
+          <option>Snd</option>
+          <option>Rcv</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Object</label>
+        <input id="object" placeholder="MasterData" />
+      </div>
+    </div>
+
+    <!-- BUTTONS -->
+    <div style="margin-top:22px; display:flex; gap:14px;">
+      <button class="btn btn-primary" type="button" onclick="copyText()">Copy</button>
+      <button class="btn btn-outline" type="button" onclick="resetForm()">Reset</button>
+    </div>
+
+  </div>
+
+  <!-- OUTPUT CARD -->
+  <div class="card">
+    <div class="output-box">
+      <span id="output">—</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ------------------ JAVASCRIPT ------------------ -->
+<script>
+
+/* Only FIRST LETTER UPPERCASE */
+function firstLetterUpper(text) {
+  if (!text) return "";
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/* Sender/Receiver uppercase only */
+function toFlatUpper(text) {
+  return (text || "").replace(/\s+/g, "").toUpperCase();
+}
+
+/* Show/hide Channel fields */
+function toggleChannelFields() {
+  document.getElementById("channelFields").style.display =
+    document.getElementById("type").value === "Channel" ? "grid" : "none";
+}
+
+/* Naming hint messages */
+function setHint(type) {
+  const hints = {
+    "Package": "VG_<BU>_<Process>_<Desc?>",
+    "Integration Flow": "IF_<BU>_<Process>_<SND>_To_<RCV>_<Desc?>",
+    "OData Service": "OD_<BU>_<Process>_<SND>_To_<RCV>_<Desc?>",
+    "Value Mapping": "VM_<ConversionDetails>",
+    "Mapping": "MM_<SRC>_to_<TGT>",
+    "Content Modifier": "CM_<Object>",
+    "Converter": "JSON_to_XML_Converter_<Desc?>",
+    "Decoder": "DC_<Algorithm>_<Desc>",
+    "Encoder": "EC_<Algorithm>_<Desc>",
+    "Filter": "FT_<Desc>",
+    "Message Digest": "MD_<Desc>",
+    "Process": "IP_<Desc>",
+    "Local Process": "LIP_<Desc>",
+    "Channel": "<Adapter>_<Snd|Rcv>_<Object>"
+  };
+  document.getElementById("hint").textContent = hints[type] || "";
+}
+
+/* Generate final name */
+function generateName() {
+  const type = document.getElementById("type").value;
+  const style = document.getElementById("style").value;
+  const bu = document.getElementById("bu").value || "Global";
+
+  const PROC = firstLetterUpper(document.getElementById("process").value);
+  const DESC = firstLetterUpper(document.getElementById("desc").value);
+  const SND = toFlatUpper(document.getElementById("sender").value);
+  const RCV = toFlatUpper(document.getElementById("receiver").value);
+
+  let name = "—";
+
+  const ADAPTER = document.getElementById("adapter")?.value;
+  const DIRECTION = document.getElementById("direction")?.value;
+  const OBJECT = firstLetterUpper(document.getElementById("object")?.value);
+
+  switch (type) {
+    case "Package":
+      name = `VG_${bu}_${PROC}${DESC ? "_" + DESC : ""}`;
+      break;
+
+    case "Integration Flow":
+      name = `IF_${bu}_${PROC}_${SND}_To_${RCV}${DESC ? "_" + DESC : ""}`;
+      break;
+
+    case "OData Service":
+      name = `OD_${bu}_${PROC}_${SND}_To_${RCV}${DESC ? "_" + DESC : ""}`;
+      break;
+
+    case "Value Mapping":
+      name = `VM_${DESC || "ConversionDetails"}`;
+      break;
+
+    case "Mapping":
+      name = `MM_${SND || "SRC"}_to_${RCV || "TGT"}`;
+      break;
+
+    case "Content Modifier":
+      name = `CM_${DESC || "Object"}`;
+      break;
+
+    case "Converter":
+      name = `JSON_to_XML_Converter${DESC ? "_" + DESC : ""}`;
+      break;
+
+    case "Decoder":
+      name = `DC_${SND || "Base64"}_${PROC || DESC || "Process"}`;
+      break;
+
+    case "Encoder":
+      name = `EC_${SND || "Base64"}_${PROC || DESC || "Process"}`;
+      break;
+
+    case "Filter":
+      name = `FT_${PROC || DESC || "Process"}`;
+      break;
+
+    case "Message Digest":
+      name = `MD_${PROC || DESC || "Process"}`;
+      break;
+
+    case "Process":
+      name = `IP_${PROC || DESC || "Process"}`;
+      break;
+
+    case "Local Process":
+      name = `LIP_${PROC || DESC || "Process"}`;
+      break;
+
+    case "Channel":
+      name = `${ADAPTER}_${DIRECTION}_${OBJECT || "Object"}`;
+      break;
+  }
+
+  if (style === "UPPER_CASE" && name !== "—") {
+    name = name.replace(/[^A-Za-z0-9]+/g, "_").replace(/_+/g, "_").toUpperCase();
+  }
+
+  document.getElementById("output").textContent = name;
+  setHint(type);
+}
+
+/* Input formatting */
+document.getElementById("process").addEventListener("input", function () {
+  this.value = firstLetterUpper(this.value);
+});
+document.getElementById("desc").addEventListener("input", function () {
+  this.value = firstLetterUpper(this.value);
+});
+document.getElementById("object").addEventListener("input", function () {
+  this.value = firstLetterUpper(this.value);
+});
+
+["sender", "receiver"].forEach(id => {
+  document.getElementById(id).addEventListener("input", function () {
+    this.value = this.value.toUpperCase().replace(/\s+/g, "");
+  });
+});
+
+/* Event listeners */
+document.querySelectorAll("input,select").forEach(el => {
+  el.addEventListener("input", () => { generateName(); toggleChannelFields(); });
+  el.addEventListener("change", () => { generateName(); toggleChannelFields(); });
+});
+
+/* Copy */
+function copyText() {
+  const v = document.getElementById("output").textContent;
+  if (v && v !== "—") {
+    navigator.clipboard.writeText(v);
+    alert("Copied: " + v);
+  }
+}
+
+/* Reset */
+function resetForm() {
+  document.querySelectorAll("input").forEach(i => i.value = "");
+  document.querySelectorAll("select").forEach(s => s.selectedIndex = 0);
+  document.getElementById("output").textContent = "—";
+  toggleChannelFields();
+  setHint("");
+}
+
+/* Init */
+toggleChannelFields();
+generateName();
+
+</script>
+
+</body>
+</html>
